@@ -62,6 +62,33 @@ Pulse is not a syntax demo. It is a distributed infrastructure project where run
 
 ---
 
+### [LineRate](https://github.com/kvetinski/line_rate) — Go/Rust systems performance lab
+
+LineRate is a tutorial-first performance lab for one simple problem:
+
+> Given a huge file with one IPv4 address per line, count the unique addresses as fast as possible.
+
+The project walks from naive line reading to mmap, zero-allocation parsing, atomics, thread-local state, and workload-specific data structures in both Go and Rust.
+
+**It demonstrates:**
+
+* Large-file processing
+* Mmap and streaming tradeoffs
+* Zero-allocation IPv4 parsing
+* Atomic bitmap contention
+* Thread-local state and merge strategies
+* Low-cardinality hash sets
+* Worker scaling and benchmark methodology
+* Go/Rust implementation comparison without turning it into a language contest
+
+**Main lesson:**
+
+The fastest design is not always the most obvious one. For huge files with low uniqueness, a small thread-local hash set can beat a full IPv4 bitmap because the real bottleneck is not address-space coverage — it is memory traffic, cache behavior, synchronization, and the shape of the data.
+
+LineRate is about making those tradeoffs visible one step at a time.
+
+---
+
 ### [Account Service](https://github.com/kvetinski/account) — Production-style Go backend service
 
 A Go backend service showing how I structure service boundaries, observability, and deployment readiness before applying the same patterns to financial or reliability-critical systems.
