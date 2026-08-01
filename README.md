@@ -1,145 +1,54 @@
-# Hi, I'm Anton Kvetinski
+# Anton Kvetinski
 
-**I turn unstable distributed systems into predictable platforms through concurrency control, backpressure, and production visibility.**
+### Senior Backend & Distributed Systems Engineer
 
-![Go](https://img.shields.io/badge/Go-production_backend-00ADD8?style=flat-square\&logo=go\&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-systems_engineering-000000?style=flat-square\&logo=rust\&logoColor=white)
-![Kafka](https://img.shields.io/badge/Kafka-event_driven_systems-231F20?style=flat-square\&logo=apachekafka\&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-platform_ops-326CE5?style=flat-square\&logo=kubernetes\&logoColor=white)
-![Reliability](https://img.shields.io/badge/Focus-reliability_under_load-brightgreen?style=flat-square)
+**Go · Rust · Distributed Systems**
 
-I’m a backend and systems engineer with 6+ years building high-load infrastructure across fintech, betting, crypto, trading, and supply-chain systems.
+I build backend and distributed systems that remain understandable under pressure. My production background spans fintech, betting, crypto trading, and supply-chain platforms, with a focus on concurrency, transaction correctness, failure isolation, observability, and performance.
 
-My production background is mostly in **Go distributed systems**. My current technical direction is deeper **systems engineering with Rust**: async runtimes, service coordination, backpressure, and predictable behavior under load.
+My current public work applies that experience to Rust and Go systems projects with explicit trade-offs, reproducible evidence, and documented limitations.
 
----
+## Selected production impact
 
-## ⚙️ My engineering philosophy
+- Reduced average request latency by **35%** by profiling and optimizing concurrent request paths in distributed supply-chain services processing **10,000+ orders/day**.
+- Designed and scaled Go services for real-time betting infrastructure sustaining peak traffic of **~8,000 requests/second**.
+- Built Go backend infrastructure for a cryptocurrency futures platform handling **~1,000 requests/second**.
 
-When I design or review a service, I ask:
+## Selected systems work
 
-* What happens when traffic spikes?
-* Can queues grow without bound?
-* Are retries safe, or can they amplify failure?
-* Are operations idempotent?
-* Can we debug the system from metrics, logs, and traces?
-* What happens when Redis, Kafka, PostgreSQL, or another dependency becomes slow?
-* Is latency predictable, or only acceptable in the happy path?
+### [Pulse](https://github.com/kvetinski/pulse) — distributed gRPC scenario engine
 
-I use backpressure, bounded concurrency, idempotency, circuit breakers, retries with clear boundaries, DLQ behavior, and distributed tracing as practical guards against production instability.
+An experimental Rust/Tokio runtime for scenario-driven gRPC load execution. Pulse explores scheduler/worker separation, Kafka job distribution, Redis-backed coordination, dynamic descriptor-driven unary calls, bounded queues, retry/DLQ paths, and Prometheus metrics.
 
-For critical services, I also care about the operational layer: metrics, dashboards, alerts, runbooks, deployment notes, and documented limitations.
+The repository includes architecture decisions, Kubernetes manifests, reliability tests, runbooks, SLO/alerting guidance, and explicit failure-boundary limitations.
 
-If a system cannot be debugged in production, it is not really finished.
+[Architecture decisions](https://github.com/kvetinski/pulse/tree/master/docs/adr) · [Operational safety](https://github.com/kvetinski/pulse/blob/master/docs/operational-safety.md) · [Known limitations](https://github.com/kvetinski/pulse#known-limitations--caveats)
 
----
+### [LineRate](https://github.com/kvetinski/line_rate) — Go/Rust performance investigation
 
-## 🚀 Selected systems work
+A Linux-first performance lab that evolves one large-file IPv4 workload from buffered I/O through `mmap`, zero-allocation parsing, atomics, and worker-local data structures in both Go and Rust.
 
-### [Pulse](https://github.com/kvetinski/pulse) — Distributed gRPC load engine in Rust
+The central question is not “which language wins?” It is how workload cardinality, memory traffic, synchronization, and cache behavior change the right design.
 
-I wanted a load engine that behaved more like production infrastructure: controlled concurrency, backpressure, coordination, metrics, and explicit failure documentation — not just a script that fires requests.
+[Lessons](https://github.com/kvetinski/line_rate/tree/master/lessons) · [Benchmark methodology](https://github.com/kvetinski/line_rate/blob/master/docs/benchmark_methodology.md) · [Result provenance](https://github.com/kvetinski/line_rate/blob/master/results/curated/metadata.md)
 
-Pulse is a Tokio-based distributed runtime for scenario-based gRPC load execution.
+## Engineering approach
 
-**What it does:**
+> Bound the work. Define the failure semantics. Instrument the system. Measure before optimizing.
 
-* Scheduler/worker architecture
-* Kafka job distribution
-* Redis leader election and idempotency
-* Bounded queues and backpressure
-* Dynamic gRPC calls from descriptor sets
-* Request templating and per-step metrics
-* Kubernetes manifests, runbooks, SLO/alerting docs, rollout notes, and documented limitations
+- Prefer bounded concurrency and explicit backpressure over hidden queue growth.
+- Treat retries as additional load and define their idempotency and commit boundaries.
+- Use representative workloads and retain enough evidence to reproduce performance conclusions.
+- Treat metrics, traces, dashboards, alerts, runbooks, and limitations as part of the system design.
 
-**Design note:**
+## Core technologies
 
-I chose bounded channels over unbounded queues because a load engine should expose pressure, not hide it.
+- **Languages and runtime:** Go, Rust, Tokio
+- **Services and data:** gRPC, REST, Kafka, NATS, Redis, PostgreSQL, ClickHouse
+- **Platform and observability:** Kubernetes, Docker, Prometheus, Grafana, OpenTelemetry
 
-Unbounded queues can make a system look healthy while memory grows and latency becomes unstable. Bounded queues force the runtime to reveal its limits early, which is exactly what I want when testing distributed systems under stress.
+## Contact
 
-Pulse is not a syntax demo. It is a distributed infrastructure project where runtime behavior, failure modes, and operational review are the point.
+Open to backend, distributed-systems, and infrastructure roles — remote or relocation.
 
----
-
-### [LineRate](https://github.com/kvetinski/line_rate) — Go/Rust systems performance lab
-
-LineRate is a tutorial-first performance lab for one simple problem:
-
-> Given a huge file with one IPv4 address per line, count the unique addresses as fast as possible.
-
-The project walks from naive line reading to mmap, zero-allocation parsing, atomics, thread-local state, and workload-specific data structures in both Go and Rust.
-
-**It demonstrates:**
-
-* Large-file processing
-* Mmap and streaming tradeoffs
-* Zero-allocation IPv4 parsing
-* Atomic bitmap contention
-* Thread-local state and merge strategies
-* Low-cardinality hash sets
-* Worker scaling and benchmark methodology
-* Go/Rust implementation comparison without turning it into a language contest
-
-**Main lesson:**
-
-The fastest design is not always the most obvious one. For huge files with low uniqueness, a small thread-local hash set can beat a full IPv4 bitmap because the real bottleneck is not address-space coverage — it is memory traffic, cache behavior, synchronization, and the shape of the data.
-
-LineRate is about making those tradeoffs visible one step at a time.
-
----
-
-### [Account Service](https://github.com/kvetinski/account) — Production-style Go backend service
-
-A Go backend service showing how I structure service boundaries, observability, and deployment readiness before applying the same patterns to financial or reliability-critical systems.
-
-It demonstrates:
-
-* Layered Go backend architecture
-* gRPC service interface
-* PostgreSQL persistence
-* OpenTelemetry tracing
-* Prometheus/Grafana metrics
-* Jaeger tracing
-* Kubernetes deployment
-* Integration testing
-
-The goal is to show backend code as an operable service, not just a collection of handlers.
-
----
-
-## 🧰 Technical stack
-
-`Go` · `Rust` · `TypeScript`
-`gRPC` · `REST` · `GraphQL`
-`Kafka` · `NATS` · `Redis`
-`PostgreSQL` · `ClickHouse` · `MongoDB`
-`Kubernetes` · `Docker`
-`Prometheus` · `Grafana` · `OpenTelemetry` · `Jaeger`
-`backpressure` · `idempotency` · `retries` · `DLQ` · `circuit breakers` · `profiling`
-
----
-
-## 🎯 What I’m looking for
-
-I’m focused on backend and systems roles where reliability, concurrency, observability, and performance matter.
-
-The work I want more of:
-
-* Distributed infrastructure
-* Backend platform engineering
-* Rust / Go systems engineering
-* Performance-critical services
-* Reliability-sensitive fintech, trading, cloud, security, robotics, or infrastructure systems
-
-I’m strongest when I can make high-load backend systems easier to reason about, operate, and debug.
-
----
-
-## 📫 Let’s connect
-
-I’m always open to discussing distributed systems, Rust/Go trade-offs, production debugging, reliability, or performance engineering.
-
-* LinkedIn: [linkedin.com/in/antonkvetinski](https://www.linkedin.com/in/antonkvetinski/)
-* GitHub: [github.com/kvetinski](https://github.com/kvetinski)
-* Email: [anton.kvetinski13@gmail.com](mailto:anton.kvetinski13@gmail.com)
+[LinkedIn](https://www.linkedin.com/in/antonkvetinski/) · [Email](mailto:anton.kvetinski13@gmail.com)
